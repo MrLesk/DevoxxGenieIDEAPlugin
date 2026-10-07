@@ -38,7 +38,7 @@ public class FileScanner {
     private final ProjectScanSettingsService settings;
 
     public FileScanner() {
-        this.settings = new ProjectScanSettingsService();
+        this.settings = ProjectScanSettingsService.followingGlobal();
     }
 
     public FileScanner(@NotNull Project project) {

@@ -15,7 +15,7 @@ public class ContentExtractor {
     private final ProjectScanSettingsService settings;
 
     public ContentExtractor() {
-        settings = new ProjectScanSettingsService();
+        settings = ProjectScanSettingsService.followingGlobal();
     }
 
     public ContentExtractor(@NotNull Project project) {

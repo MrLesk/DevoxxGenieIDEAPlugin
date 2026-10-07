@@ -27,8 +27,18 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     private final ScanSettings state = new ScanSettings();
+    /** True for a scanner that runs without a project: it follows the global settings, read at every call. */
+    private final boolean followsGlobal;
 
     public ProjectScanSettingsService() {
+        this(false);
+    }
+
+    private ProjectScanSettingsService(boolean followsGlobal) {
+        this.followsGlobal = followsGlobal;
+        if (followsGlobal) {
+            return;
+        }
         DevoxxGenieStateService defaults = DevoxxGenieStateService.getInstance();
         state.useGitIgnore = defaults.getUseGitIgnore();
         state.excludeJavaDoc = defaults.getExcludeJavaDoc();
@@ -39,7 +49,13 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public static ProjectScanSettingsService getInstance(@NotNull Project project) {
-        return project.getService(ProjectScanSettingsService.class);
+        ProjectScanSettingsService service = project.getService(ProjectScanSettingsService.class);
+        return service != null ? service : followingGlobal();
+    }
+
+    /** The global Scan & Copy settings, read at every call, for scanners that run without a project. */
+    public static ProjectScanSettingsService followingGlobal() {
+        return new ProjectScanSettingsService(true);
     }
 
     @Override
@@ -58,7 +74,7 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public Boolean getUseGitIgnore() {
-        return state.useGitIgnore;
+        return followsGlobal ? DevoxxGenieStateService.getInstance().getUseGitIgnore() : state.useGitIgnore;
     }
 
     public void setUseGitIgnore(Boolean value) {
@@ -66,7 +82,7 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public Boolean getExcludeJavaDoc() {
-        return state.excludeJavaDoc;
+        return followsGlobal ? DevoxxGenieStateService.getInstance().getExcludeJavaDoc() : state.excludeJavaDoc;
     }
 
     public void setExcludeJavaDoc(Boolean value) {
@@ -74,7 +90,7 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public List<String> getExcludedDirectories() {
-        return state.excludedDirectories;
+        return followsGlobal ? DevoxxGenieStateService.getInstance().getExcludedDirectories() : state.excludedDirectories;
     }
 
     public void setExcludedDirectories(List<String> value) {
@@ -82,7 +98,7 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public List<String> getExcludedFiles() {
-        return state.excludedFiles;
+        return followsGlobal ? DevoxxGenieStateService.getInstance().getExcludedFiles() : state.excludedFiles;
     }
 
     public void setExcludedFiles(List<String> value) {
@@ -90,7 +106,7 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public List<String> getIncludedFileExtensions() {
-        return state.includedFileExtensions;
+        return followsGlobal ? DevoxxGenieStateService.getInstance().getIncludedFileExtensions() : state.includedFileExtensions;
     }
 
     public void setIncludedFileExtensions(List<String> value) {
@@ -98,7 +114,7 @@ public final class ProjectScanSettingsService implements PersistentStateComponen
     }
 
     public List<String> getRagExcludedDirectories() {
-        return state.ragExcludedDirectories;
+        return followsGlobal ? DevoxxGenieStateService.getInstance().getRagExcludedDirectories() : state.ragExcludedDirectories;
     }
 
     public void setRagExcludedDirectories(List<String> value) {
